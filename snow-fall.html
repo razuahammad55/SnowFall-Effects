@@ -1,0 +1,76 @@
+<style>
+.snow-fall #snow-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.snow-fall {
+  position: relative;
+  overflow: hidden;
+}
+</style>
+
+<canvas id="snow-canvas"></canvas>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const canvas = document.getElementById("snow-canvas");
+  const ctx = canvas.getContext("2d");
+  const container = document.querySelector(".snow-fall");
+
+  if (!container) return; 
+
+  container.prepend(canvas);
+
+  let w, h;
+  function setCanvasSize() {
+      w = container.clientWidth;
+      h = container.clientHeight;
+      canvas.width = w; 
+      canvas.height = h;
+  }
+  setCanvasSize();
+  window.addEventListener("resize", setCanvasSize); 
+
+  const flakes = [];
+  const shapes = ["❄", "✶", "✻", "✼", "✺"];
+
+  function createSnowflakes() {
+    for (let i = 0; i < 140; i++) {
+      flakes.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: Math.random() * 24 + 8,
+        speed: Math.random() * 1 + 0.5,
+        shape: shapes[Math.floor(Math.random() * shapes.length)],
+        opacity: Math.random() * 0.8 + 0.2,
+      });
+    }
+  }
+
+  function drawSnowflakes() {
+    ctx.clearRect(0, 0, w, h);
+    flakes.forEach((f) => {
+      ctx.globalAlpha = f.opacity;
+      ctx.font = `${f.size}px Arial`;
+      ctx.fillStyle = "white";
+      ctx.fillText(f.shape, f.x, f.y);
+      f.y += f.speed;
+
+      // FIX: Reset only when the snowflake is fully below the section
+      if (f.y > h + f.size) { 
+        f.y = -f.size; // Start it just above the top edge
+        f.x = Math.random() * w;
+      }
+    });
+    requestAnimationFrame(drawSnowflakes);
+  }
+
+  createSnowflakes();
+  drawSnowflakes();
+});
+</script>
